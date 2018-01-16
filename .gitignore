@@ -1,2 +1,5 @@
 # Ignore test outputs
 *.json
+
+# Ignore py.test files
+.cache/
