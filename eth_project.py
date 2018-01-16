@@ -23,8 +23,8 @@ class Contract:
     def _compile(self):
         results = self.compiler(self.code)
         self._abi = results['abi']
-        self._bytecode = results['bytecode']
-        self._bytecode_runtime = results['bytecode_runtime']
+        self._bytecode = results['bin']
+        self._runtime = results['bin-runtime']
     
     @property
     def abi(self):
@@ -39,24 +39,24 @@ class Contract:
         return self._bytecode
 
     @property
-    def bytecode_runtime(self):
-        if not hasattr(self, '_bytecode_runtime'):
+    def runtime(self):
+        if not hasattr(self, '_runtime'):
             self._compile()
-        return self._bytecode_runtime
+        return self._runtime
 
     def read_artifacts(self, artifacts):
         # Reduces need to run compiler if code hasn't changed
         if 'checksum' in artifacts and artifacts['checksum'] is self.checksum:
             self.abi = artifacts['abi']
-            self.bytecode = artifacts['bytecode']
-            self.bytecode_runtime = artifacts['bytecode_runtime']
+            self.bytecode = artifacts['bin']
+            self.runtime = artifacts['bin-runtime']
         # otherwise, will need to fully compile when asked for data
 
     def write_artifacts(self):
         return {
             'abi': self.abi, 
-            'bytecode': self.bytecode, 
-            'bytecode_runtime': self.bytecode_runtime, 
+            'bin': self.bytecode, 
+            'bin-runtime': self.runtime, 
             'checksum': self.checksum
         }
 
@@ -94,8 +94,6 @@ def _main(contracts_directory, artifacts_file, output_flattened):
         for name, artifact in results.items():
             # TODO Fix this so it works right with Contract object
             name = name.split(':')[1]
-            artifact['bytecode'] = artifact['bin']
-            artifact['bytecode_runtime'] = artifact['bin-runtime']
             contracts[name] = Contract(b"", lambda c: c, lambda c: artifact)
             artifact['checksum'] = generate_checksum(b"")
             contracts[name].read_artifacts(artifact)
