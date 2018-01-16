@@ -65,10 +65,12 @@ class Contract:
 
 
 def _main(contracts_directory, artifacts_file, output_flattened):
+    starting_directory = os.getcwd()
+    os.chdir(contracts_directory)
     # Search and load contract objects from filenames
     contracts = {}
     solc_files = []
-    for root, dirs, files in os.walk(contracts_directory):
+    for root, dirs, files in os.walk(os.getcwd()):
         for _file in files:
             if _file.endswith('.sol'):
                 solc_files.append(os.path.join(root, _file))
@@ -87,6 +89,7 @@ def _main(contracts_directory, artifacts_file, output_flattened):
     # and has no batching functionality,
     # so just create object for every contract
     if solc_files:
+        # TODO solc needs to be located in the contracts_directory to work
         results = solc.compile_files(solc_files)
         for name, artifact in results.items():
             # TODO Fix this so it works right with Contract object
@@ -103,6 +106,8 @@ def _main(contracts_directory, artifacts_file, output_flattened):
             for name, artifacts in json.loads(f.read()).items():
                 if name in contracts.keys():
                     contracts[name].read_artifacts(artifacts)
+
+    os.chdir(starting_directory)
 
     # Once everything is parsed, write it all out again
     artifact_list = [(name, contract.write_artifacts()) for name, contract in contracts.items()]
