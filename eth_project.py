@@ -64,7 +64,7 @@ class Contract:
         return self.checksum
 
 
-def _main(contracts_directory, artifacts_file, output_flattened):
+def regen_artifacts(contracts_directory, artifacts_file):
     starting_directory = os.getcwd()
     os.chdir(contracts_directory)
     # Search and load contract objects from filenames
@@ -120,5 +120,4 @@ if __name__ == '__main__':
     ''')
     ap.add_argument('--contracts-directory', nargs='?', default='./')
     ap.add_argument('--artifacts-file', nargs='?', default='./contracts.json')
-    ap.add_argument('--output-flattened', type=bool, nargs='?', default=False)
-    _main(**vars(ap.parse_args()))
+    regen_artifacts(**vars(ap.parse_args()))
